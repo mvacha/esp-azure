@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "iothub.h"
 #include "iothub_client.h"
 #include "iothub_device_client_ll.h"
 #include "iothub_client_options.h"
@@ -14,6 +15,7 @@
 #include "azure_c_shared_utility/shared_util_options.h"
 #include "iothubtransportmqtt.h"
 #include "iothub_client_options.h"
+#include "azure_prov_client/iothub_security_factory.h"
 #include "esp_system.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -26,11 +28,7 @@
     #include "certs.h"
 #endif // SET_TRUSTED_CERT_IN_SAMPLES
 
-/*String containing Hostname, Device Id & Device Key in the format:                         */
-/*  "HostName=<host_name>;DeviceId=<device_id>;SharedAccessKey=<device_key>"                */
-/*  "HostName=<host_name>;DeviceId=<device_id>;SharedAccessSignature=<device_sas_token>"    */
-#define EXAMPLE_IOTHUB_CONNECTION_STRING CONFIG_IOTHUB_CONNECTION_STRING
-static const char* connectionString = EXAMPLE_IOTHUB_CONNECTION_STRING;
+static const char* connectionString = "HostName=esp-thesis.azure-devices.net;DeviceId=" CONFIG_DEVICE_COMMON_NAME ";UseProvisioning=true";
 
 static int callbackCounter;
 static char msgText[1024];
@@ -142,13 +140,20 @@ void iothub_client_sample_mqtt_run(void)
     callbackCounter = 0;
     int receiveContext = 0;
 
-    if (platform_init() != 0)
+    IOTHUB_SECURITY_TYPE security_type;
+    //security_type = IOTHUB_SECURITY_TYPE_SAS;
+    security_type = IOTHUB_SECURITY_TYPE_X509;
+
+    if (IoTHub_Init() != 0)
     {
         (void)printf("Failed to initialize the platform.\r\n");
     }
     else
-    {
-        if ((iotHubClientHandle = IoTHubClient_LL_CreateFromConnectionString(connectionString, MQTT_Protocol)) == NULL)
+    {   
+        (void)iothub_security_init(security_type);     
+
+        //if ((iotHubClientHandle = IoTHubClient_LL_CreateFromDeviceAuth("esp-thesis.azure-devices.net", "01237539495F6120EE", MQTT_Protocol)) == NULL)
+        if ((iotHubClientHandle = IoTHubDeviceClient_LL_CreateFromConnectionString(connectionString, MQTT_Protocol)) == NULL)
         {
             (void)printf("ERROR: iotHubClientHandle is NULL!\r\n");
         }

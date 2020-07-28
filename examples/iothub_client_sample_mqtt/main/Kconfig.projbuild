@@ -14,13 +14,11 @@ config WIFI_PASSWORD
 
 		Can be left blank if the network has no security set.
 
-config IOTHUB_CONNECTION_STRING
-    string "IOT Hub Device Connection String"
-	default ""
-	help
-		String containing Hostname, Device Id & Device Key in the format:
-		HostName=<host_name>;DeviceId=<device_id>;SharedAccessKey=<device_key>
-		You can get this from the Azure IoT CLI or the Azure Portal.
+config DEVICE_COMMON_NAME
+    string "Device Leaf Certificate Common Name"
+    default "mydevice"
+    help
+        Common name of Leaf Certificate
 
 config MESSAGE_INTERVAL_TIME
     int "Time delay in Milliseconds between two consecutive messages"
