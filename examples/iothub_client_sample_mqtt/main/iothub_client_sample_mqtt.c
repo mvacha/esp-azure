@@ -20,9 +20,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#ifdef MBED_BUILD_TIMESTAMP
-    #define SET_TRUSTED_CERT_IN_SAMPLES
-#endif // MBED_BUILD_TIMESTAMP
+
+#define SET_TRUSTED_CERT_IN_SAMPLES
+
 
 #ifdef SET_TRUSTED_CERT_IN_SAMPLES
     #include "certs.h"
@@ -163,6 +163,10 @@ void iothub_client_sample_mqtt_run(void)
             IoTHubClient_LL_SetOption(iotHubClientHandle, OPTION_LOG_TRACE, &traceOn);
 
             IoTHubClient_LL_SetConnectionStatusCallback(iotHubClientHandle, connection_status_callback, NULL);
+
+            bool enabled = true;
+            IoTHubClient_LL_SetOption(iotHubClientHandle, "logtrace", &enabled);
+
             // Setting the Trusted Certificate.  This is only necessary on system with without
             // built in certificate stores.
 #ifdef SET_TRUSTED_CERT_IN_SAMPLES
